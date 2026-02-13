@@ -5,7 +5,16 @@
     "version": "v1.0-prereg",
     "date_frozen": "2026-02-13",
     "author": "Jonathan Mathieu",
-    "repository": "hera-prereg-2026"
+    "repository": "hera-prereg-2026",
+    "notes": [
+      "All numerical entries are priors (pre-Hera), not posteriors.",
+      "Where physical units/normalizations are ambiguous (e.g., gravity harmonics conventions), wide conservative priors are used.",
+      "Rotation-regime priors incorporate published expectation of persistent NPA state at Hera arrival."
+    ],
+    "primary_anchors": [
+      "Dimorphos expected to remain in NPA (tumbling) at Hera arrival (late 2026).",
+      "Bulk density estimates remain broad; use wide priors on mass-related parameters."
+    ]
   },
 
   "model_variants": {
@@ -24,19 +33,62 @@
 
   "predictions": {
     "rotational_regime": {
-      "R0": null,
-      "R1": null,
-      "R2": null
+      "definition": {
+        "R0": "principal-axis (PA) rotation, near-synchronous / weakly excited",
+        "R1": "principal-axis rotation but measurably excited (non-synchronous), no clear NPA signature",
+        "R2": "non-principal-axis (NPA) rotation / tumbling"
+      },
+      "prior_probabilities": {
+        "R0": 0.10,
+        "R1": 0.25,
+        "R2": 0.65
+      },
+      "confidence_rationale": [
+        "Published post-DART lightcurve analyses predict persistent NPA state at Hera arrival; hence R2 dominates.",
+        "Residual probability is reserved for unexpected rapid damping or misclassification due to viewing geometry."
+      ]
     },
+
     "gravity_coefficients": {
-      "C22_mean": null,
-      "C22_std": null,
-      "J2_mean": null,
-      "J2_std": null
+      "convention": "dimensionless zonal/tesseral harmonics; normalization to be matched to Hera team reporting (pre-registered as transform-invariant via z-scoring to a common convention).",
+      "C22": {
+        "prior": {
+          "dist": "lognormal",
+          "median": 0.005,
+          "sigma_ln": 0.8,
+          "hard_bounds": [0.0003, 0.05]
+        },
+        "interpretation": "equatorial elongation / triaxiality proxy (broad prior; rubble-pile plausible range)."
+      },
+      "J2": {
+        "prior": {
+          "dist": "lognormal",
+          "median": 0.02,
+          "sigma_ln": 0.8,
+          "hard_bounds": [0.001, 0.2]
+        },
+        "interpretation": "flattening / mass distribution proxy (broad prior)."
+      }
     },
+
     "libration_signature": {
-      "decay_exponent": null,
-      "characteristic_timescale": null
+      "observable": "libration / NPA energy decay proxy measured over Hera observation window",
+      "decay_exponent": {
+        "prior": {
+          "dist": "uniform",
+          "bounds": [0.5, 2.0]
+        },
+        "interpretation": "power-law decay exponent p in A(t) ~ t^{-p} when applicable"
+      },
+      "characteristic_timescale_days": {
+        "prior": {
+          "dist": "lognormal",
+          "median": 120,
+          "sigma_ln": 0.9,
+          "hard_bounds": [10, 1500]
+        },
+        "interpretation": "effective damping/relaxation timescale (days), wide due to uncertain interior + rubble pile dissipation"
+      }
     }
   },
 
@@ -48,6 +100,11 @@
       "QL_FULL_vs_BASELINE": "at least two outputs improved",
       "QL_FULL_vs_QL_ABLATED": "at least one output improved",
       "coverage_range": "0.90-0.98"
-    }
+    },
+    "implementation_notes": [
+      "All model variants must be evaluated using identical data cuts and identical convention-mapping for gravity harmonics.",
+      "If Hera provides C20 instead of J2, conversion will be applied using standard spherical-harmonic relations pre-registered as deterministic mapping.",
+      "Rotation regime classification must be performed blind to model label."
+    ]
   }
 }
