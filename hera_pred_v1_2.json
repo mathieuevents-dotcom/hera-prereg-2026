@@ -1,0 +1,125 @@
+{
+  "metadata": {
+    "mission": "Hera",
+    "target": "Dimorphos",
+    "version": "v1.2-prereg",
+    "date_frozen": "2026-02-13",
+    "author": "Jonathan Mathieu",
+    "repository": "hera-prereg-2026",
+    "notes": [
+      "All numerical entries are priors (pre-Hera), not posteriors.",
+      "Wide conservative ranges used where conventions may differ.",
+      "No post-hoc tuning allowed after tagging v1.2-prereg."
+    ]
+  },
+
+  "model_variants": {
+    "QL_FULL": {
+      "environment_coupling": true,
+      "free_parameters": ["Q_eff", "alpha", "K", "tau"]
+    },
+    "QL_ABLATED": {
+      "environment_coupling": false,
+      "free_parameters": ["Q_eff", "alpha", "tau"]
+    },
+    "BASELINE": {
+      "type": "standard_triaxial_dissipative"
+    }
+  },
+
+  "predictions": {
+
+    "rotational_regime": {
+      "definition": {
+        "R0": "Principal-axis (PA) rotation, near-synchronous / weakly excited",
+        "R1": "Principal-axis rotation measurably excited (non-synchronous)",
+        "R2": "Non-principal-axis (NPA) rotation / tumbling"
+      },
+      "prior_probabilities": {
+        "R0": 0.10,
+        "R1": 0.25,
+        "R2": 0.65
+      },
+      "confidence_rationale": [
+        "Post-DART analyses suggest persistent NPA state at Hera arrival.",
+        "Residual probability reserved for rapid damping or misclassification."
+      ]
+    },
+
+    "gravity_coefficients": {
+
+      "convention": "Dimensionless zonal/tesseral harmonics; normalization to be matched to Hera reporting standard.",
+
+      "C22": {
+        "prior": {
+          "distribution": "lognormal",
+          "median": 0.025,
+          "sigma_ln": 0.8,
+          "hard_bounds": [0.0005, 0.08]
+        },
+        "interpretation": "Equatorial elongation / triaxiality proxy (broad rubble-pile plausible range)."
+      },
+
+      "J2": {
+        "prior": {
+          "distribution": "lognormal",
+          "median": 0.06,
+          "sigma_ln": 0.8,
+          "hard_bounds": [0.001, 0.25]
+        },
+        "interpretation": "Flattening / mass distribution proxy (broad prior)."
+      }
+    },
+
+    "libration_signature": {
+
+      "observable": "Time evolution of NPA energy or libration amplitude over Hera observation window.",
+
+      "decay_exponent": {
+        "prior": {
+          "distribution": "uniform",
+          "bounds": [-2.5, -0.2]
+        },
+        "interpretation": "Power-law decay exponent of excitation amplitude."
+      },
+
+      "characteristic_timescale_days": {
+        "prior": {
+          "distribution": "loguniform",
+          "bounds": [5, 500]
+        },
+        "interpretation": "Characteristic damping timescale (days)."
+      }
+    }
+  },
+
+  "secondary_tests": {
+
+    "cross_output_consistency": {
+      "enabled": true,
+      "definition": "Consistency score linking rotational regime, gravity coefficients, and libration signature under pre-registered physical admissibility constraints.",
+      "metric": "consistency_score",
+      "direction": "higher_is_better",
+      "success_condition": "QL_FULL > BASELINE and QL_FULL > QL_ABLATED"
+    }
+
+  },
+
+  "scoring_protocol": {
+
+    "classification_metric": "log_score",
+    "continuous_metric": "CRPS",
+    "coverage_target": 0.95,
+
+    "success_conditions": {
+      "QL_FULL_vs_BASELINE": "Improvement in at least two outputs",
+      "QL_FULL_vs_QL_ABLATED": "Improvement in at least one output",
+      "coverage_range": "0.90-0.98"
+    },
+
+    "notes": [
+      "All metrics computed against frozen priors without reweighting.",
+      "No structural modification of model variants allowed after tag."
+    ]
+  }
+}
