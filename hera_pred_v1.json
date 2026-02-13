@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "mission": "Hera",
+    "target": "Dimorphos",
+    "version": "v1.0-prereg",
+    "date_frozen": "2026-02-13",
+    "author": "Jonathan Mathieu",
+    "repository": "hera-prereg-2026"
+  },
+
+  "model_variants": {
+    "QL_FULL": {
+      "environment_coupling": true,
+      "free_parameters": ["Q_eff", "alpha", "K", "tau"]
+    },
+    "QL_ABLATED": {
+      "environment_coupling": false,
+      "free_parameters": ["Q_eff", "alpha", "tau"]
+    },
+    "BASELINE": {
+      "type": "standard_triaxial_dissipative"
+    }
+  },
+
+  "predictions": {
+    "rotational_regime": {
+      "R0": null,
+      "R1": null,
+      "R2": null
+    },
+    "gravity_coefficients": {
+      "C22_mean": null,
+      "C22_std": null,
+      "J2_mean": null,
+      "J2_std": null
+    },
+    "libration_signature": {
+      "decay_exponent": null,
+      "characteristic_timescale": null
+    }
+  },
+
+  "scoring_protocol": {
+    "classification_metric": "log_score",
+    "continuous_metric": "CRPS",
+    "coverage_target": 0.95,
+    "success_conditions": {
+      "QL_FULL_vs_BASELINE": "at least two outputs improved",
+      "QL_FULL_vs_QL_ABLATED": "at least one output improved",
+      "coverage_range": "0.90-0.98"
+    }
+  }
+}
