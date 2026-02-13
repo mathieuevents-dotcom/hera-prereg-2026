@@ -1,0 +1,150 @@
+\documentclass[11pt]{article}
+
+% Encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{a4paper, margin=2.5cm}
+
+\title{Pre-Registered Predictions for the Hera Mission\\
+Using a Coupled Dynamical Framework (Quantum LiRam v1)}
+
+\author{Jonathan Mathieu}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present pre-registered probabilistic predictions for the rotational and gravitational properties of Dimorphos at the time of ESA's Hera mission arrival (2026). The predictions are generated using a minimal coupled dynamical framework incorporating internal structure, effective dissipation, and environmental interaction within the Didymos–Dimorphos binary system. All input parameters, model variants, scoring metrics, and success criteria are frozen prior to Hera data release.
+\end{abstract}
+
+\section{Scope and Objective}
+
+This document defines a pre-registered predictive framework for the Hera mission. 
+No post-hoc parameter tuning will be performed after Hera data release. 
+All predictions are probabilistic and evaluated using predefined scoring rules.
+
+\section{Model Definition}
+
+We model Dimorphos as a coupled dynamical system:
+
+\begin{equation}
+\dot{x}(t) = \mathcal{D}\big(x(t); C_{\text{body}}, C_{\text{env}}(t), K \big),
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $C_{\text{body}}$ encodes internal properties (triaxiality, density, dissipation),
+\item $C_{\text{env}}(t)$ encodes environmental forcing (binary coupling),
+\item $K$ is a scalar coupling parameter.
+\end{itemize}
+
+Energy dissipation is modeled via a nonlinear regulation term:
+
+\begin{equation}
+\dot{E} = \gamma A^2 g(\phi) + \epsilon, \qquad
+A = \frac{A_0}{1 + \alpha E}.
+\end{equation}
+
+The parameters $\alpha$ and $Q_{\text{eff}}$ represent effective dissipation properties.
+
+\section{Frozen Input Parameters}
+
+Only publicly available pre-Hera data are allowed:
+
+\begin{itemize}
+\item Triaxiality estimates from pre-Hera shape models
+\item Density and porosity ranges from literature
+\item Post-DART dynamical constraints
+\end{itemize}
+
+Free parameters (with wide priors):
+
+\begin{itemize}
+\item $Q_{\text{eff}}$
+\item $\alpha$
+\item $K$
+\item $\tau$ (optional delay term)
+\end{itemize}
+
+Maximum number of free parameters: 4.
+
+\section{Model Variants}
+
+\subsection{QL-FULL}
+Includes internal structure and environmental coupling.
+
+\subsection{QL-ABLATED}
+Identical but with $K=0$ (no environmental interaction).
+
+\subsection{BASELINE}
+Standard triaxial dissipative rotation model without nonlinear regulation.
+
+\section{Predictive Outputs}
+
+\subsection{O1: Rotational Regime Classification}
+
+Three exclusive classes:
+
+\begin{itemize}
+\item R0: Near principal-axis rotation
+\item R1: Moderate non-principal-axis (bounded tumbling)
+\item R2: Strong tumbling / chaotic regime
+\end{itemize}
+
+Probabilities $P(R0)$, $P(R1)$, $P(R2)$ are provided.
+
+\subsection{O2: Gravitational Harmonics}
+
+Predicted probability distributions for degree-2 gravity coefficients:
+\[
+C_{22}, \quad J_2.
+\]
+
+\subsection{O3: Rotational Persistence Signature}
+
+Predicted decay profile or persistence of libration amplitude over observational window.
+
+\section{Scoring Protocol}
+
+\begin{itemize}
+\item Log-score (multiclass) for O1
+\item Continuous Ranked Probability Score (CRPS) for O2 and O3
+\item 95\% interval coverage validation
+\end{itemize}
+
+\section{Success Criteria}
+
+QL-FULL is considered successful if:
+
+\begin{itemize}
+\item It outperforms BASELINE on at least two outputs,
+\item It outperforms QL-ABLATED on at least one output,
+\item Interval coverage remains between 90\% and 98\%.
+\end{itemize}
+
+\section{Data Lock Statement}
+
+All predictions, priors, and scoring scripts will be frozen and publicly archived before Hera data release.
+
+\section{Reproducibility}
+
+A public repository will contain:
+
+\begin{itemize}
+\item Code for QL-FULL, QL-ABLATED, BASELINE
+\item Frozen prediction JSON file
+\item Scoring scripts
+\end{itemize}
+
+\end{document}
