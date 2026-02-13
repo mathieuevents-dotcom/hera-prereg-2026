@@ -1,3 +1,4 @@
+
 {
   "metadata": {
     "mission": "Hera",
@@ -6,10 +7,10 @@
     "date_frozen": "2026-02-13",
     "author": "Jonathan Mathieu",
     "repository": "hera-prereg-2026",
-    "notes": [
-      "All numerical entries are priors (pre-Hera), not posteriors.",
-      "Wide conservative ranges used where conventions may differ.",
-      "No post-hoc tuning allowed after tagging v1.2-prereg."
+    "frozen_commit": "PUT_COMMIT_SHA_HERE",
+    "schema_policy": [
+      "Keep mean/std fields for scoring interoperability.",
+      "Priors are provided as a justification layer; mean/std are derived from priors by deterministic rules below."
     ]
   },
 
@@ -28,98 +29,98 @@
   },
 
   "predictions": {
-
     "rotational_regime": {
+      "R0": 0.10,
+      "R1": 0.25,
+      "R2": 0.65,
       "definition": {
-        "R0": "Principal-axis (PA) rotation, near-synchronous / weakly excited",
-        "R1": "Principal-axis rotation measurably excited (non-synchronous)",
-        "R2": "Non-principal-axis (NPA) rotation / tumbling"
-      },
-      "prior_probabilities": {
-        "R0": 0.10,
-        "R1": 0.25,
-        "R2": 0.65
-      },
-      "confidence_rationale": [
-        "Post-DART analyses suggest persistent NPA state at Hera arrival.",
-        "Residual probability reserved for rapid damping or misclassification."
+        "R0": "principal-axis (PA) rotation, near-synchronous / weakly excited",
+        "R1": "principal-axis rotation but measurably excited (non-synchronous), no clear NPA signature",
+        "R2": "non-principal-axis (NPA) rotation / tumbling"
+      }
+    },
+
+    "gravity_coefficients": {
+      "convention": "dimensionless harmonics; mapping to Hera convention is locked in CONVENTIONS.md",
+      "C22_mean": 0.006,
+      "C22_std": 0.006,
+      "J2_mean": 0.025,
+      "J2_std": 0.025
+    },
+
+    "libration_signature": {
+      "decay_exponent_mean": 1.25,
+      "decay_exponent_std": 0.43,
+      "characteristic_timescale_days_mean": 200,
+      "characteristic_timescale_days_std": 260
+    }
+  },
+
+  "priors": {
+    "rotational_regime": {
+      "prior_probabilities": { "R0": 0.10, "R1": 0.25, "R2": 0.65 },
+      "rationale": [
+        "Post-DART analyses predict persistent NPA state at Hera arrival; hence R2 dominates.",
+        "Non-zero probability reserved for rapid damping or geometry-driven ambiguity."
       ]
     },
 
     "gravity_coefficients": {
-
-      "convention": "Dimensionless zonal/tesseral harmonics; normalization to be matched to Hera reporting standard.",
-
       "C22": {
-        "prior": {
-          "distribution": "lognormal",
-          "median": 0.025,
-          "sigma_ln": 0.8,
-          "hard_bounds": [0.0005, 0.08]
-        },
-        "interpretation": "Equatorial elongation / triaxiality proxy (broad rubble-pile plausible range)."
+        "dist": "lognormal",
+        "median": 0.005,
+        "sigma_ln": 0.8,
+        "hard_bounds": [0.0003, 0.05]
       },
-
       "J2": {
-        "prior": {
-          "distribution": "lognormal",
-          "median": 0.06,
-          "sigma_ln": 0.8,
-          "hard_bounds": [0.001, 0.25]
-        },
-        "interpretation": "Flattening / mass distribution proxy (broad prior)."
-      }
+        "dist": "lognormal",
+        "median": 0.02,
+        "sigma_ln": 0.8,
+        "hard_bounds": [0.001, 0.2]
+      },
+      "deterministic_derivation_rule": [
+        "C22_mean/std and J2_mean/std are set to conservative moments approximations under the above priors, truncated to hard_bounds.",
+        "If Hera provides C20 instead of J2, conversion is applied per CONVENTIONS.md before scoring."
+      ]
     },
 
     "libration_signature": {
-
-      "observable": "Time evolution of NPA energy or libration amplitude over Hera observation window.",
-
       "decay_exponent": {
-        "prior": {
-          "distribution": "uniform",
-          "bounds": [-2.5, -0.2]
-        },
-        "interpretation": "Power-law decay exponent of excitation amplitude."
+        "dist": "uniform",
+        "bounds": [0.5, 2.0]
       },
-
       "characteristic_timescale_days": {
-        "prior": {
-          "distribution": "loguniform",
-          "bounds": [5, 500]
-        },
-        "interpretation": "Characteristic damping timescale (days)."
-      }
+        "dist": "lognormal",
+        "median": 120,
+        "sigma_ln": 0.9,
+        "hard_bounds": [10, 1500]
+      },
+      "mc_settings": {
+        "enabled": true,
+        "seed": 1729,
+        "n_samples": 200000,
+        "truncation": "rejection_sampling",
+        "notes": "Used only to map priors -> mean/std deterministically; mean/std fields remain the interoperable inputs for scoring."
+      },
+      "deterministic_derivation_rule": [
+        "decay_exponent_mean/std computed from uniform bounds (mean=(a+b)/2, std=(b-a)/sqrt(12)).",
+        "timescale_mean/std approximated from truncated lognormal by Monte Carlo with fixed seed and fixed n_samples in mc_settings."
+      ]
     }
-  },
-
-  "secondary_tests": {
-
-    "cross_output_consistency": {
-      "enabled": true,
-      "definition": "Consistency score linking rotational regime, gravity coefficients, and libration signature under pre-registered physical admissibility constraints.",
-      "metric": "consistency_score",
-      "direction": "higher_is_better",
-      "success_condition": "QL_FULL > BASELINE and QL_FULL > QL_ABLATED"
-    }
-
   },
 
   "scoring_protocol": {
-
     "classification_metric": "log_score",
     "continuous_metric": "CRPS",
     "coverage_target": 0.95,
-
     "success_conditions": {
-      "QL_FULL_vs_BASELINE": "Improvement in at least two outputs",
-      "QL_FULL_vs_QL_ABLATED": "Improvement in at least one output",
+      "QL_FULL_vs_BASELINE": "at least two outputs improved",
+      "QL_FULL_vs_QL_ABLATED": "at least one output improved",
       "coverage_range": "0.90-0.98"
     },
-
-    "notes": [
-      "All metrics computed against frozen priors without reweighting.",
-      "No structural modification of model variants allowed after tag."
+    "implementation_notes": [
+      "Continuous scoring uses mean/std fields for interoperability. If priors exist, the scorer may optionally sample to compute CRPS consistently, using mc_settings where provided (fixed seed, fixed n_samples).",
+      "Rotation regime scoring uses the categorical log score on (R0,R1,R2)."
     ]
   }
 }
